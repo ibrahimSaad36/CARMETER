@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -147,6 +148,22 @@ public class MainClass extends Application{
             }
         });
         
+        refreshInternet.setOnAction((ActionEvent event) -> {
+            checkNoIntenet();
+            if(noInternet){
+                showNoIntenetAlert();
+            }
+        });
+        
+        refreshGPS.setOnAction((ActionEvent event) -> {
+            if(noGps){
+                serialComm.connect();
+                if(!SerialCommunication.PORT_CONNECTED){
+                    noGps = true;
+                    showNoGPSAlert();
+                } 
+            }
+        });
         
         setSpeedSlider = new Slider();
         setSpeedSlider.setMin(0);
