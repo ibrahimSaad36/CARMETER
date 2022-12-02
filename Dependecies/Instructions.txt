@@ -1,0 +1,4 @@
+- GMapsFX-8.0.0.jar File will be added directly to the 'Libraires' folder in Netbeans and the same for Medusa-5.7.jar file
+- Fpr RXTX Library:
+		>> Add rxtxParallel.dll and rxtxSerial.dll to C:\Windows\System32 Folder
+		>> Then add EXTXcomm.jar to the 'Libraires' folder in Netbeans
