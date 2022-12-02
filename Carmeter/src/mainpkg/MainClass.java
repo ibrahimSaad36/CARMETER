@@ -42,6 +42,8 @@ public class MainClass extends Application{
     private Gauge carSpeedGauge;
     private Gauge carSpeedSetting;
     private Button showMapStageBtn;
+    private Button refreshInternet;
+    private Button refreshGPS;
     private boolean noInternet = false;
     private boolean noGps = false;
     private SerialCommunication serialComm;
@@ -126,8 +128,14 @@ public class MainClass extends Application{
         //startUpdateUiThread();
         
         showMapStageBtn = new Button("Show Map");
+        refreshInternet = new Button("Internet Connected");
+        refreshGPS = new Button("GPS Connected");
         showMapStageBtn.setId("btn");
+        refreshInternet.setId("btn");
+        refreshGPS.setId("btn");
         showMapStageBtn.setFont(new Font(Font.getDefault().getName(), 25));
+        refreshInternet.setFont(new Font(Font.getDefault().getName(), 25));
+        refreshGPS.setFont(new Font(Font.getDefault().getName(), 25));
         
         showMapStageBtn.setOnAction((ActionEvent event) -> {
             checkNoIntenet();
@@ -164,15 +172,20 @@ public class MainClass extends Application{
         guagesBox.setSpacing(250);
         guagesBox.getChildren().addAll(carSpeedGauge, carSpeedSetting);
         //FlowPane guages = new FlowPane(carSpeedGauge, carSpeedSetting);
-        VBox btnBox = new VBox();
-        btnBox.setPadding(new Insets(20));
+        
+        HBox btnBox = new HBox();
+        btnBox.setPadding(new Insets(30));
         btnBox.setAlignment(Pos.CENTER);
-        btnBox.getChildren().addAll(showMapStageBtn, latLabel, longLabel);
+        btnBox.getChildren().addAll(showMapStageBtn, refreshInternet, refreshGPS);
+        VBox btnsAndLabelsContainer = new VBox();
+        btnsAndLabelsContainer.setPadding(new Insets(30));
+        btnsAndLabelsContainer.setAlignment(Pos.CENTER);
+        btnsAndLabelsContainer.getChildren().addAll(btnBox, latLabel, longLabel);
         BorderPane root= new BorderPane();
         root.setId("root");
         root.setCenter(guagesBox);
         root.setTop(setSpeedSlider);
-        root.setBottom(btnBox);
+        root.setBottom(btnsAndLabelsContainer);
         Scene scene = new Scene(root, 1500, 700);
         scene.getStylesheets().add(getClass().getResource("../csspkg/styles.css").toString());
         primaryStage.setTitle("OUR CARMETER");
