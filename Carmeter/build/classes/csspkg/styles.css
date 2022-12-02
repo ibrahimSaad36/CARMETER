@@ -1,0 +1,21 @@
+#root{
+    -fx-background-color: #000000
+}
+#slider {
+      -fx-background-color:
+          -fx-shadow-highlight-color,
+          linear-gradient(to bottom, #ff3300, #009999, #66ffff);
+    -fx-background-insets: 0 0 -1 0, 0, 1;
+    -fx-background-radius: 0.25em, 0.25em, 0.166667em; /* 3 3 2 */
+    -fx-padding: 0.25em; /* 3 */
+}
+#btn{
+    -fx-background-color: linear-gradient(#ff5400, #be1d00);
+    -fx-background-radius: 30;
+    -fx-background-insets: 0;
+    -fx-text-fill: white;
+}
+#label{
+    -fx-text-fill: white;
+}
+
