@@ -14,8 +14,9 @@ public class SerialCommunication {
     Thread serialReadThread;
     public static boolean PORT_CONNECTED = false;
     private MapStage map;
-    private boolean readyForLatLng = false, readyForSpeed = false;
-    private double latitude = 0, longitude = 0, speed = 0;
+    public static boolean READY_FOR_LATLNG = false;
+    private boolean readyForSpeed = false;
+    public static double LATITUDE = 0, LONGITUDE = 0, SPEED = 0;
     
     public SerialCommunication() {
         map = new MapStage();
@@ -38,6 +39,10 @@ public class SerialCommunication {
                     try{
                         serialPort = (SerialPort) portIdentifier.open(this.getClass().getName(), 2000);
                         serialPort.setSerialPortParams(9600, SerialPort.DATABITS_8, SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                        serialReadThread = new Thread(new SerialReader(in));
+                        serialReadThread.setDaemon(true);
+                        serialReadThread.start();
+                        System.out.println("serial thread started");
                     }catch (PortInUseException ex) {
                         System.err.println(ex.getMessage());
                         return;
@@ -50,11 +55,6 @@ public class SerialCommunication {
                     }catch (IOException ex) {
                         System.err.println(ex.getMessage());
                     }
-
-                    serialReadThread = new Thread(new SerialReader(in));
-                    serialReadThread.setDaemon(true);
-                    serialReadThread.start();
-                    System.out.println("serial thread started");
                 }
             }
 
@@ -90,35 +90,37 @@ public class SerialCommunication {
                     else{
                         recievedData = new String(strBuild);
                         data = recievedData.split(" ");
+                        READY_FOR_LATLNG = false;
+                        readyForSpeed = false;
                         System.out.println(data[0] + ", " + data[1] + ", " + data[2]);
                         if(!data[0].equals("") && !data[1].equals("") && !data[2].equals(""))
                         {
                             try{
-                                latitude = Double.parseDouble(data[0]);
-                                longitude = Double.parseDouble(data[1]);
-                                System.out.println(latitude);
-                                System.out.println(longitude);
-                                readyForLatLng = true;
+                                LATITUDE = Double.parseDouble(data[0]);
+                                LONGITUDE = Double.parseDouble(data[1]);
+                                System.out.println(LATITUDE);
+                                System.out.println(LONGITUDE);
+                                READY_FOR_LATLNG = true;
                             }catch(NumberFormatException ex){
                                 System.err.println("Lat and Long Not a Number");
-                                readyForLatLng = false;
+                                READY_FOR_LATLNG = false;
                             }
                             try{
-                                speed = Double.parseDouble(data[2]);
-                                System.out.println(speed);
+                                SPEED = Double.parseDouble(data[2]);
+                                System.out.println(SPEED);
                                 readyForSpeed = true;
                             }catch(NumberFormatException ex){
                                 System.err.println("Speed Not a Number");
                                 readyForSpeed = false;
                             }
                             Platform.runLater(() -> {
-                                if(readyForLatLng){
-                                    map.updateMarker(latitude, longitude);
-                                    mainpkg.MainClass.updateLabels(latitude, longitude);
+                                if(READY_FOR_LATLNG){
+                                    //map.updateMarker(LATITUDE, LONGITUDE);
+                                    mainpkg.MainClass.updateLabels(LATITUDE, LONGITUDE);
                                 }
                                 if(readyForSpeed){
-                                    mainpkg.MainClass.updateSpeedGauge(speed);
-                                    mainpkg.MainClass.checkAlarm(speed);
+                                    mainpkg.MainClass.updateSpeedGauge(SPEED);
+                                    mainpkg.MainClass.checkAlarm(SPEED);
                                 }
                             });
                             strBuild = new StringBuilder("");

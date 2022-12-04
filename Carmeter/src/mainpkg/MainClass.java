@@ -31,7 +31,7 @@ import serialpkg.SerialCommunication;
 public class MainClass extends Application{
     
     private static MediaPlayer MEDIAPLAYER;
-    private Thread speedSettingThread;
+    //private Thread speedSettingThread;
     //private Thread updateUiThread;
     //private double currentSpeed;
     private static double SETTING_SPEED = 30;
@@ -45,6 +45,7 @@ public class MainClass extends Application{
     private boolean noGps = false;
     private SerialCommunication serialComm;
     private static Label LAT_LABEL, LONG_LABEL;
+    private MapStage mapStage;
 
     @Override
     public void init() throws Exception {
@@ -52,11 +53,11 @@ public class MainClass extends Application{
         serialComm = new SerialCommunication();
         Media media = new Media(new File("carAlarm.mp3").toURI().toString());
         MEDIAPLAYER = new MediaPlayer(media);
-        MEDIAPLAYER.setAutoPlay(true);
+        //MEDIAPLAYER.setAutoPlay(true);
 //        speedSettingThread = new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-//                //check if the speed exceeds the setting
+//                //check if the SPEED exceeds the setting
 //                while(true){
 //                    if(SETTING_SPEED >= currentSpeed){
 //                        if(MEDIAPLAYER.getStatus() == MediaPlayer.Status.STOPPED){
@@ -102,7 +103,7 @@ public class MainClass extends Application{
         carSpeedSetting.setDecimals(0);
         carSpeedSetting.setAnimationDuration(250);
         carSpeedSetting.setNeedleColor(Color.BLUE);
-        carSpeedSetting.setValue(20);
+        carSpeedSetting.setValue(SETTING_SPEED);
     }
 
     @Override
@@ -132,7 +133,7 @@ public class MainClass extends Application{
         showMapStageBtn.setOnAction((ActionEvent event) -> {
             checkNoIntenet();
             if(!NO_INTERNET){
-                MapStage mapStage = new MapStage();
+                mapStage = new MapStage();
                 mapStage.showMapWindow();
             }else{
                 showNoIntenetAlert();
@@ -163,7 +164,7 @@ public class MainClass extends Application{
         setSpeedSlider.setShowTickMarks(true);
         // enable the Labels
         setSpeedSlider.setShowTickLabels(true);
-        setSpeedSlider.setValue(30);
+        setSpeedSlider.setValue(SETTING_SPEED);
         setSpeedSlider.setId("slider");
         
         setSpeedSlider.valueProperty().addListener(new ChangeListener<Number>(){
@@ -204,10 +205,11 @@ public class MainClass extends Application{
     @Override
     public void stop() throws Exception {
         super.stop();
-        speedSettingThread.stop();
+        //speedSettingThread.stop();
         MEDIAPLAYER.dispose();
         if(SerialCommunication.PORT_CONNECTED)
             serialComm.closePort();
+        mapStage.closeUpdateMarkerThread();
     }
     
     public static void main(String[] args){
