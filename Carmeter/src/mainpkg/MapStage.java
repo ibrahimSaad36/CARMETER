@@ -29,8 +29,8 @@ public class MapStage implements MapComponentInitializedListener{
     private Thread updateMarkerThread;
     
     public MapStage(){
-        mapView = new GoogleMapView("en", "AIzaSyAE_y8r6dfiev1ATvDcCoBtbzrpbyH4ugU");
-        mapView.setKey("AIzaSyAE_y8r6dfiev1ATvDcCoBtbzrpbyH4ugU");
+        mapView = new GoogleMapView("en", "Your API KEY");
+        mapView.setKey("Your API KEY");
         mapView.addMapInitializedListener(this);
         mapView.setDisableDoubleClick(true);
         mapView.getWebview().getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
