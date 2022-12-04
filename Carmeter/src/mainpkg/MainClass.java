@@ -7,14 +7,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -34,49 +30,47 @@ import serialpkg.SerialCommunication;
 
 public class MainClass extends Application{
     
-    private MediaPlayer mediaPlayer;
+    private static MediaPlayer MEDIAPLAYER;
     private Thread speedSettingThread;
-    private Thread updateUiThread;
-    private float currentSpeed = 0;
-    private float settingSpeed = 0;
+    //private Thread updateUiThread;
+    //private double currentSpeed;
+    private static double SETTING_SPEED = 30;
     private Slider setSpeedSlider;
-    private Gauge carSpeedGauge;
+    private static Gauge CAR_SPEED_GAUGE;
     private Gauge carSpeedSetting;
     private Button showMapStageBtn;
     private Button refreshInternet;
     private Button refreshGPS;
-    private boolean noInternet = false;
+    public static boolean NO_INTERNET = false;
     private boolean noGps = false;
     private SerialCommunication serialComm;
-    public static double LATITUDE = 0.0, LONGITUDE = 0.0, SPEED = 0.0;
-    public static boolean READY = false;
-    private Label latLabel, longLabel;
+    private static Label LAT_LABEL, LONG_LABEL;
 
     @Override
     public void init() throws Exception {
         super.init();
         serialComm = new SerialCommunication();
         Media media = new Media(new File("carAlarm.mp3").toURI().toString());
-        mediaPlayer = new MediaPlayer(media);
-        mediaPlayer.setAutoPlay(true);
-        speedSettingThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //check if the speed exceeds the setting
-                while(true){
-                    if(settingSpeed >= currentSpeed){
-                        if(mediaPlayer.getStatus() == MediaPlayer.Status.STOPPED){
-                            mediaPlayer.play();
-                        }else
-                            mediaPlayer.play();
-                    }else{
-                        mediaPlayer.stop();
-                    }
-                }
-            }
-        });
+        MEDIAPLAYER = new MediaPlayer(media);
+        MEDIAPLAYER.setAutoPlay(true);
+//        speedSettingThread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                //check if the speed exceeds the setting
+//                while(true){
+//                    if(SETTING_SPEED >= currentSpeed){
+//                        if(MEDIAPLAYER.getStatus() == MediaPlayer.Status.STOPPED){
+//                            MEDIAPLAYER.play();
+//                        }else
+//                            MEDIAPLAYER.play();
+//                    }else{
+//                        MEDIAPLAYER.stop();
+//                    }
+//                }
+//            }
+//        });
         
-        carSpeedGauge = GaugeBuilder.create()
+        CAR_SPEED_GAUGE = GaugeBuilder.create()
                 .skinType(Gauge.SkinType.MODERN)
                 .title("Current Speed")
                 .subTitle("Speed Now")
@@ -84,21 +78,18 @@ public class MainClass extends Application{
                 .prefSize(400, 400)
                 .maxValue(180)
                 .build();
-        carSpeedGauge.setAnimated(true);
-        carSpeedGauge.setDecimals(0);
-        carSpeedGauge.setAnimationDuration(250);
-        carSpeedGauge.setThresholdColor(Color.RED);  //color will become red if it crosses threshold value
-        carSpeedGauge.setThreshold(170);
-        carSpeedGauge.setThresholdVisible(true);
-        carSpeedGauge.setNeedleColor(Color.BLUE);
-        carSpeedGauge.setValue(90);
-        latLabel = new Label("Latitude: ");
-        latLabel.setId("label");
-        longLabel = new Label("Longitude: ");
-        longLabel.setId("label");
-        serialComm.getSpeedGaugeControl(carSpeedGauge);
-        serialComm.getLatLabelControl(latLabel);
-        serialComm.getLongLabelControl(longLabel);
+        CAR_SPEED_GAUGE.setAnimated(true);
+        CAR_SPEED_GAUGE.setDecimals(0);
+        CAR_SPEED_GAUGE.setAnimationDuration(250);
+        CAR_SPEED_GAUGE.setThresholdColor(Color.RED);  //color will become red if it crosses threshold value
+        CAR_SPEED_GAUGE.setThreshold(170);
+        CAR_SPEED_GAUGE.setThresholdVisible(true);
+        CAR_SPEED_GAUGE.setNeedleColor(Color.BLUE);
+        CAR_SPEED_GAUGE.setValue(90);
+        LAT_LABEL = new Label("Latitude: ");
+        LAT_LABEL.setId("label");
+        LONG_LABEL = new Label("Longitude: ");
+        LONG_LABEL.setId("label");
         carSpeedSetting = GaugeBuilder.create()
                 .title("Speed Limiter")
                 .skinType(Gauge.SkinType.MODERN)
@@ -117,7 +108,7 @@ public class MainClass extends Application{
     @Override
     public void start(Stage primaryStage) throws Exception {
         checkNoIntenet();
-        if(noInternet)
+        if(NO_INTERNET)
             showNoIntenetAlert();
         serialComm.connect();
         if(!SerialCommunication.PORT_CONNECTED){
@@ -125,7 +116,7 @@ public class MainClass extends Application{
             showNoGPSAlert();
         }
         
-        speedSettingThread.start();
+        //speedSettingThread.start();
         //startUpdateUiThread();
         
         showMapStageBtn = new Button("Show Map");
@@ -140,7 +131,7 @@ public class MainClass extends Application{
         
         showMapStageBtn.setOnAction((ActionEvent event) -> {
             checkNoIntenet();
-            if(!noInternet){
+            if(!NO_INTERNET){
                 MapStage mapStage = new MapStage();
                 mapStage.showMapWindow();
             }else{
@@ -150,7 +141,7 @@ public class MainClass extends Application{
         
         refreshInternet.setOnAction((ActionEvent event) -> {
             checkNoIntenet();
-            if(noInternet){
+            if(NO_INTERNET){
                 showNoIntenetAlert();
             }
         });
@@ -172,14 +163,14 @@ public class MainClass extends Application{
         setSpeedSlider.setShowTickMarks(true);
         // enable the Labels
         setSpeedSlider.setShowTickLabels(true);
-        setSpeedSlider.setValue(20);
+        setSpeedSlider.setValue(30);
         setSpeedSlider.setId("slider");
         
         setSpeedSlider.valueProperty().addListener(new ChangeListener<Number>(){
             @Override
             public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-                settingSpeed = newValue.floatValue();
-                carSpeedSetting.setValue(settingSpeed);
+                SETTING_SPEED = newValue.floatValue();
+                carSpeedSetting.setValue(SETTING_SPEED);
             }
         });
 
@@ -187,8 +178,8 @@ public class MainClass extends Application{
         guagesBox.setPadding(new Insets(30));
         guagesBox.setAlignment(Pos.CENTER);
         guagesBox.setSpacing(250);
-        guagesBox.getChildren().addAll(carSpeedGauge, carSpeedSetting);
-        //FlowPane guages = new FlowPane(carSpeedGauge, carSpeedSetting);
+        guagesBox.getChildren().addAll(CAR_SPEED_GAUGE, carSpeedSetting);
+        //FlowPane guages = new FlowPane(CAR_SPEED_GAUGE, carSpeedSetting);
         
         HBox btnBox = new HBox();
         btnBox.setPadding(new Insets(30));
@@ -197,7 +188,7 @@ public class MainClass extends Application{
         VBox btnsAndLabelsContainer = new VBox();
         btnsAndLabelsContainer.setPadding(new Insets(30));
         btnsAndLabelsContainer.setAlignment(Pos.CENTER);
-        btnsAndLabelsContainer.getChildren().addAll(btnBox, latLabel, longLabel);
+        btnsAndLabelsContainer.getChildren().addAll(btnBox, LAT_LABEL, LONG_LABEL);
         BorderPane root= new BorderPane();
         root.setId("root");
         root.setCenter(guagesBox);
@@ -214,9 +205,9 @@ public class MainClass extends Application{
     public void stop() throws Exception {
         super.stop();
         speedSettingThread.stop();
-        mediaPlayer.dispose();
+        MEDIAPLAYER.dispose();
         if(SerialCommunication.PORT_CONNECTED)
-            serialComm.disconnect();
+            serialComm.closePort();
     }
     
     public static void main(String[] args){
@@ -235,16 +226,33 @@ public class MainClass extends Application{
         alert.setHeaderText("Oops, We Couldn't Find GPS, Reconnect The Module and Then Click GPS Connected");
         alert.showAndWait();
     }
-    public void checkNoIntenet(){
+    public static void checkNoIntenet(){
         try{
             URL url = new URL("https://www.google.com");
             URLConnection connection = url.openConnection();
             connection.connect();
-            noInternet = false;
+            NO_INTERNET = false;
         }catch (MalformedURLException e) {
-            noInternet = true;
+            NO_INTERNET = true;
         }catch (IOException e) {
-            noInternet = true;
+            NO_INTERNET = true;
         }
+    }
+    public static void checkAlarm(double currentSpeed){
+        if(currentSpeed >= SETTING_SPEED){
+            if(MEDIAPLAYER.getStatus() == MediaPlayer.Status.STOPPED){
+                MEDIAPLAYER.play();
+            }else
+                MEDIAPLAYER.play();
+        }else{
+            MEDIAPLAYER.stop();
+        }
+    }
+    public static void updateSpeedGauge(double speed){
+        CAR_SPEED_GAUGE.setValue(speed);
+    }
+    public static void updateLabels(double lat, double lng){
+        LAT_LABEL.setText("Latitude: " + lat);
+        LONG_LABEL.setText("Longitude: " + lng);
     }
 }

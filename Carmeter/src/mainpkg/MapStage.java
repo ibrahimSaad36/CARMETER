@@ -25,8 +25,8 @@ public class MapStage implements MapComponentInitializedListener{
     private Stage stage;
     
     public MapStage(){
-        mapView = new GoogleMapView("en", "AIzaSyD7lZzbkOXqLFLzZnGvb7Kd9rnTZO8wGko");
-        mapView.setKey("AIzaSyD7lZzbkOXqLFLzZnGvb7Kd9rnTZO8wGko");
+        mapView = new GoogleMapView("en", "Your API KEY");
+        mapView.setKey("Your API KEY");
         mapView.addMapInitializedListener(this);
         mapView.setDisableDoubleClick(true);
         mapView.getWebview().getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
@@ -51,24 +51,41 @@ public class MapStage implements MapComponentInitializedListener{
 
     @Override
     public void mapInitialized() {
-        mapOptions = new MapOptions();
-        mapOptions.center(new LatLong(30.033333, 31.233334))
-                .mapType(MapTypeIdEnum.ROADMAP)
-                .overviewMapControl(false)
-                .panControl(false)
-                .rotateControl(false)
-                .scaleControl(false)
-                .streetViewControl(false)
-                .zoomControl(false)
-                .zoom(13);
+        MainClass.checkNoIntenet();
+        if(!MainClass.NO_INTERNET){
+            mapOptions = new MapOptions();
+            mapOptions.center(new LatLong(30.033333, 31.233334))
+                    .mapType(MapTypeIdEnum.ROADMAP)
+                    .overviewMapControl(false)
+                    .panControl(false)
+                    .rotateControl(false)
+                    .scaleControl(false)
+                    .streetViewControl(false)
+                    .zoomControl(false)
+                    .mapMarker(true)
+                    .zoom(13);
 
-        map = mapView.createMap(mapOptions);
-        markerOptions = new MarkerOptions();
-        markerOptions.position(new LatLong(30.033333, 30.033333))
-                .visible(Boolean.TRUE)
-                .title("My Marker");
-
-        marker = new Marker(markerOptions);
+            map = mapView.createMap(mapOptions);
+            markerOptions = new MarkerOptions();
+            markerOptions
+                    .visible(Boolean.TRUE)
+                    .title("Position");
+            marker = new Marker(markerOptions);
+            map.addMarker(marker);
+        }
     }
-    
+    public void updateMarker(double lat, double lng){
+        MainClass.checkNoIntenet();
+        if(!MainClass.NO_INTERNET){
+            if(marker != null)
+                map.removeMarker(marker);
+            markerOptions = new MarkerOptions();
+            markerOptions.position(new LatLong(lat, lng))
+                .visible(Boolean.TRUE)
+                .title("Position");
+            marker = new Marker(markerOptions);
+            map.addMarker(marker);
+            map.setCenter(new LatLong(lat, lng));
+        } 
+    }
 }

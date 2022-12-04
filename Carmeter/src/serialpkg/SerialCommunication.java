@@ -1,30 +1,24 @@
 package serialpkg;
 
-import eu.hansolo.medusa.Gauge;
 import gnu.io.*;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
+import mainpkg.MapStage;
 
 public class SerialCommunication {
 
     SerialPort serialPort;
     InputStream in;
     Thread serialReadThread;
-    BufferedReader buf;
     public static boolean PORT_CONNECTED = false;
-    private Gauge speedGauge;
-    private Label latLbl, longLbl;
+    private MapStage map;
+    private boolean readyForLatLng = false, readyForSpeed = false;
+    private double latitude = 0, longitude = 0, speed = 0;
     
     public SerialCommunication() {
-        
+        map = new MapStage();
     }
     
     public void connect(){
@@ -66,22 +60,13 @@ public class SerialCommunication {
 
         }
     }
-    public void disconnect() {
+    public void closePort() {
         if (serialReadThread.isAlive()) {
             serialReadThread.stop();
             serialPort.close();
             System.out.println("Serial Port Thread Stopped!");
             PORT_CONNECTED = false;
         }
-    }
-    public void getSpeedGaugeControl(Gauge gauge){
-        speedGauge = gauge;
-    }
-    public void getLatLabelControl(Label lat){
-        latLbl = lat;
-    }
-    public void getLongLabelControl(Label Lon){
-        longLbl = Lon;
     }
     
     class SerialReader implements Runnable{
@@ -96,10 +81,9 @@ public class SerialCommunication {
             byte[] buffer = new byte[1024];
             int len = -1;
             StringBuilder strBuild = new StringBuilder("");
-            String recievedData = new String();
+            String recievedData;
             try{
                 while ((len = in.read(buffer)) > -1) {
-                    mainpkg.MainClass.READY = false;
                     String str = new String(buffer, 0, len);
                     if(!str.equals("\n"))
                         strBuild.append(str);
@@ -109,22 +93,36 @@ public class SerialCommunication {
                         System.out.println(data[0] + ", " + data[1] + ", " + data[2]);
                         if(!data[0].equals("") && !data[1].equals("") && !data[2].equals(""))
                         {
-                            mainpkg.MainClass.LATITUDE = Double.parseDouble(data[0]);
-                            mainpkg.MainClass.LONGITUDE = Double.parseDouble(data[1]);
-                            mainpkg.MainClass.SPEED = Double.parseDouble(data[2]);
-                            System.out.println(mainpkg.MainClass.LATITUDE);
-                            System.out.println(mainpkg.MainClass.LONGITUDE);
-                            System.out.println(mainpkg.MainClass.SPEED);
-                            mainpkg.MainClass.READY = true;
+                            try{
+                                latitude = Double.parseDouble(data[0]);
+                                longitude = Double.parseDouble(data[1]);
+                                System.out.println(latitude);
+                                System.out.println(longitude);
+                                readyForLatLng = true;
+                            }catch(NumberFormatException ex){
+                                System.err.println("Lat and Long Not a Number");
+                                readyForLatLng = false;
+                            }
+                            try{
+                                speed = Double.parseDouble(data[2]);
+                                System.out.println(speed);
+                                readyForSpeed = true;
+                            }catch(NumberFormatException ex){
+                                System.err.println("Speed Not a Number");
+                                readyForSpeed = false;
+                            }
                             Platform.runLater(() -> {
-                                speedGauge.setValue(mainpkg.MainClass.SPEED);
-                                latLbl.setText("Latitude: " + mainpkg.MainClass.LATITUDE);
-                                longLbl.setText("Longitude: " + mainpkg.MainClass.LONGITUDE);
+                                if(readyForLatLng){
+                                    map.updateMarker(latitude, longitude);
+                                    mainpkg.MainClass.updateLabels(latitude, longitude);
+                                }
+                                if(readyForSpeed){
+                                    mainpkg.MainClass.updateSpeedGauge(speed);
+                                    mainpkg.MainClass.checkAlarm(speed);
+                                }
                             });
-                            
                             strBuild = new StringBuilder("");
                         }
-                        
                     }
                 }
             }catch (IOException e){
