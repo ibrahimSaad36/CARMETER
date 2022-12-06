@@ -42,6 +42,6 @@ In the app we have:
  * You can set the speed limit via the speed limit slider and it will be displayed on the speed limiter gauge, and if the current speed exceeded the speed 
  limit, an alarm will be initiated.
  
- Note: you can find a short demonstration video and actual running of the app in this link ()
+ Note: you can find a short demonstration video and actual running of the app in this link (https://youtu.be/oRMRqPTpZlI)
  
   
