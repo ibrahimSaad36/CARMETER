@@ -31,8 +31,17 @@ In the app we have:
   ![res2](https://user-images.githubusercontent.com/118214245/205886997-747086be-b33f-45df-9eb0-9dbe0ba998f8.png)
   
   * Check if there is no internet connection, and also check if the GPS module not connected.
-
   
-
+  ![no internet](https://user-images.githubusercontent.com/118214245/205888091-f5166426-94ff-45fd-a8f0-a4d6acec43e5.png)
   
+  ![no gps](https://user-images.githubusercontent.com/118214245/205888130-b0ef1829-8995-4d4a-a4f1-790914528475.png)
 
+ * Continuous listening and receiving data from Arduino (latitude and longitude and speed) via serial communication.
+ * Continuous update for the position marker on the map.
+ * The speed is continuously updated into the current speed gauge.
+ * You can set the speed limit via the speed limit slider and it will be displayed on the speed limiter gauge, and if the current speed exceeded the speed 
+ limit, an alarm will be initiated.
+ 
+ Note: you can find a short demonstration video and actual running of the app in this link ()
+ 
+  
