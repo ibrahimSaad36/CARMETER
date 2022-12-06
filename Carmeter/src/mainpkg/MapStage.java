@@ -1,6 +1,5 @@
 package mainpkg;
 
-
 import com.dlsc.gmapsfx.GoogleMapView;
 import com.dlsc.gmapsfx.MapComponentInitializedListener;
 import com.dlsc.gmapsfx.javascript.object.GoogleMap;
@@ -29,8 +28,8 @@ public class MapStage implements MapComponentInitializedListener{
     private Thread updateMarkerThread;
     
     public MapStage(){
-        mapView = new GoogleMapView("en", "Your API KEY");
-        mapView.setKey("Your API KEY");
+        mapView = new GoogleMapView("en", "API KEY");
+        mapView.setKey("API KEY");
         mapView.addMapInitializedListener(this);
         mapView.setDisableDoubleClick(true);
         mapView.getWebview().getEngine().setOnAlert(new EventHandler<WebEvent<String>>() {
@@ -59,7 +58,7 @@ public class MapStage implements MapComponentInitializedListener{
         if(!MainClass.NO_INTERNET){
             mapOptions = new MapOptions();
             mapOptions.center(new LatLong(30.0711, 31.0211))
-                    .mapType(MapTypeIdEnum.ROADMAP)
+                    .mapType(MapTypeIdEnum.HYBRID)
                     .overviewMapControl(false)
                     .panControl(false)
                     .rotateControl(false)
@@ -67,7 +66,7 @@ public class MapStage implements MapComponentInitializedListener{
                     .streetViewControl(false)
                     .zoomControl(false)
                     .mapMarker(true)
-                    .zoom(30);
+                    .zoom(20);
 
             map = mapView.createMap(mapOptions);
             markerOptions = new MarkerOptions();

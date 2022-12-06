@@ -31,9 +31,6 @@ import serialpkg.SerialCommunication;
 public class MainClass extends Application{
     
     private static MediaPlayer MEDIAPLAYER;
-    //private Thread speedSettingThread;
-    //private Thread updateUiThread;
-    //private double currentSpeed;
     private static double SETTING_SPEED = 30;
     private Slider setSpeedSlider;
     private static Gauge CAR_SPEED_GAUGE;
@@ -53,29 +50,12 @@ public class MainClass extends Application{
         serialComm = new SerialCommunication();
         Media media = new Media(new File("carAlarm.mp3").toURI().toString());
         MEDIAPLAYER = new MediaPlayer(media);
-        //MEDIAPLAYER.setAutoPlay(true);
-//        speedSettingThread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                //check if the SPEED exceeds the setting
-//                while(true){
-//                    if(SETTING_SPEED >= currentSpeed){
-//                        if(MEDIAPLAYER.getStatus() == MediaPlayer.Status.STOPPED){
-//                            MEDIAPLAYER.play();
-//                        }else
-//                            MEDIAPLAYER.play();
-//                    }else{
-//                        MEDIAPLAYER.stop();
-//                    }
-//                }
-//            }
-//        });
         
         CAR_SPEED_GAUGE = GaugeBuilder.create()
                 .skinType(Gauge.SkinType.MODERN)
                 .title("Current Speed")
                 .subTitle("Speed Now")
-                .unit("RPM")
+                .unit("Km/h")
                 .prefSize(400, 400)
                 .maxValue(180)
                 .build();
@@ -86,7 +66,7 @@ public class MainClass extends Application{
         CAR_SPEED_GAUGE.setThreshold(170);
         CAR_SPEED_GAUGE.setThresholdVisible(true);
         CAR_SPEED_GAUGE.setNeedleColor(Color.BLUE);
-        CAR_SPEED_GAUGE.setValue(90);
+        CAR_SPEED_GAUGE.setValue(0);
         LAT_LABEL = new Label("Latitude: ");
         LAT_LABEL.setId("label");
         LONG_LABEL = new Label("Longitude: ");
@@ -95,7 +75,7 @@ public class MainClass extends Application{
                 .title("Speed Limiter")
                 .skinType(Gauge.SkinType.MODERN)
                 .subTitle("Setting the speed")
-                .unit("RPM")
+                .unit("Km/h")
                 .prefSize(300, 300)
                 .maxValue(180)
                 .build();
@@ -116,9 +96,6 @@ public class MainClass extends Application{
             noGps = true;
             showNoGPSAlert();
         }
-        
-        //speedSettingThread.start();
-        //startUpdateUiThread();
         
         showMapStageBtn = new Button("Show Map");
         refreshInternet = new Button("Internet Connected");
@@ -180,7 +157,6 @@ public class MainClass extends Application{
         guagesBox.setAlignment(Pos.CENTER);
         guagesBox.setSpacing(250);
         guagesBox.getChildren().addAll(CAR_SPEED_GAUGE, carSpeedSetting);
-        //FlowPane guages = new FlowPane(CAR_SPEED_GAUGE, carSpeedSetting);
         
         HBox btnBox = new HBox();
         btnBox.setPadding(new Insets(30));
@@ -209,7 +185,8 @@ public class MainClass extends Application{
         MEDIAPLAYER.dispose();
         if(SerialCommunication.PORT_CONNECTED)
             serialComm.closePort();
-        mapStage.closeUpdateMarkerThread();
+        if(SerialCommunication.READY_FOR_LATLNG)
+            mapStage.closeUpdateMarkerThread();
     }
     
     public static void main(String[] args){

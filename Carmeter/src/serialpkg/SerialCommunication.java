@@ -13,17 +13,15 @@ public class SerialCommunication {
     InputStream in;
     Thread serialReadThread;
     public static boolean PORT_CONNECTED = false;
-    private MapStage map;
     public static boolean READY_FOR_LATLNG = false;
     private boolean readyForSpeed = false;
     public static double LATITUDE = 0, LONGITUDE = 0, SPEED = 0;
     
-    public SerialCommunication() {
-        map = new MapStage();
+    public SerialCommunication(){
     }
     
     public void connect(){
-        Enumeration<?> e = CommPortIdentifier.getPortIdentifiers();
+        Enumeration e = CommPortIdentifier.getPortIdentifiers();
         System.out.println("There are any ports?" + e.hasMoreElements());
         while (e.hasMoreElements()) {
             CommPortIdentifier portIdentifier = (CommPortIdentifier) e.nextElement();
